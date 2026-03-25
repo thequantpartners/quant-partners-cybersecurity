@@ -456,6 +456,18 @@ const QualificationWizard = ({ onClose }) => {
         </p>
       </div>
 
+      <div className="mb-8 flex flex-col items-center">
+        <h2 className="text-2xl md:text-4xl font-bold tracking-widest text-white text-center font-mono uppercase">
+          <span className="text-signals mr-3 opacity-80">{'>'}</span>
+          Agenda Tu Llamada
+          <span className="animate-pulse ml-1 text-signals">_</span>
+        </h2>
+        <div className="h-px w-48 mt-4 bg-gradient-to-r from-transparent via-signals to-transparent opacity-60"></div>
+        <p className="text-structure mt-3 text-xs md:text-sm font-mono tracking-widest uppercase">
+          [ EJECUCIÓN ESTRATÉGICA ]
+        </p>
+      </div>
+
       <div id="wizard-content" className="w-full max-w-3xl bg-[#0a0a0a] border border-structure rounded-sm shadow-2xl flex flex-col">
         {/* Header Tabs Simulation */}
         <div className="flex border-b border-structure bg-[#111]">
