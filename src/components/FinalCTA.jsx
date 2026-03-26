@@ -5,13 +5,12 @@ const FinalCTA = ({ onApply }) => {
     <section className="w-full bg-[#030303] py-32 px-6 border-t border-structure text-center relative flex flex-col items-center justify-center min-h-[60vh]">
       <div className="max-w-3xl mx-auto z-10">
         <h2 className="text-3xl md:text-5xl font-bold mb-6">
-          Si esto no te parece crítico, <br/>
-          <span className="text-red-500 glow-red">estás subestimando el riesgo.</span>
+          Tú mismo estás saboteando <br/>
+          <span className="text-red-500 glow-red">tus finanzas al aferrarte a procesos comerciales rotos.</span>
         </h2>
         
         <p className="text-xl text-gray-400 font-mono mb-12 max-w-2xl mx-auto">
-          Pero si entiendes que depender de referidos o agencias generalistas es una 
-          vulnerabilidad estructural, entonces necesitas Hardening comercial.
+          Cada hora que pasa sin la infraestructura de Quant es lucro cesante masivo. Es tu responsabilidad fiduciaria detener el sangrado táctico hoy mismo.
         </p>
 
         <button 

@@ -214,12 +214,12 @@ const Hero = ({ onStartScan }) => {
         </h1>
         
         <p className="text-xl md:text-2xl text-gray-300 max-w-2xl mb-12 font-mono drop-shadow-md">
-          Empresas de ciberseguridad operando sin Hardening en su capa de generación de oportunidades.
+          Tu tecnología es de élite, pero tu arquitectura comercial es un colador de papel. Estás perdiendo contratos Enterprise hoy mismo porque operas tu adquisición como un vendedor aficionado, no como un operador logístico.
         </p>
         
         <div className="text-sm font-mono text-gray-400 mb-8 border-l-2 border-signals pl-4 uppercase tracking-widest backdrop-blur-sm bg-background/30 max-w-fit pr-4 py-2">
-          <p>No es falta de demanda.</p>
-          <p className="text-white mt-1">Es exposición estructural.</p>
+          <p>No es falta de leads.</p>
+          <p className="text-white mt-1">Es insolvencia técnica en la captación.</p>
         </div>
         
         <button 

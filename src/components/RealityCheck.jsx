@@ -38,16 +38,16 @@ const RealityCheck = () => {
 
         <div className="flex flex-col">
           <RealityRow 
-            perception="Necesitamos más leads." 
-            reality="No existe un sistema de adquisición definido. Solo tácticas aisladas." 
+            perception="Necesitamos generar más leads urgentes." 
+            reality="Tus agentes imploran por 'mejores leads' para tapar el hecho de que tu embudo no califica ni retiene autoridad." 
           />
           <RealityRow 
             perception="Las ventas son muy inestables este trimestre." 
-            reality="Alta variabilidad en la entrada de señales y dependencia de referidos." 
+            reality="Creer que tu problema es 'rediseñar la web' o 'contratar otro SDR' es negligencia gerencial pura." 
           />
           <RealityRow 
             perception="El equipo de ventas no está cerrando suficiente." 
-            reality="La capa de filtrado es inexistente. El SDR procesa ruido." 
+            reality="Estás echando agua en una tubería rota. La capa de filtrado es inexistente." 
           />
           <RealityRow 
             perception="Hay que rediseñar el web o cambiar el mensaje." 

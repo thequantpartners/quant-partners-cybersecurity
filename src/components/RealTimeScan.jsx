@@ -6,19 +6,17 @@ const RealTimeScan = ({ isScanActive, onScanComplete }) => {
   const sectionRef = useRef(null);
 
   const scanSequence = [
-    { text: "Running acquisition surface scan...", delay: 500, type: "normal" },
-    { text: "Authenticating modules... OK", delay: 1500, type: "normal" },
-    { text: "Scanning dependency tree...", delay: 2500, type: "alert" },
-    { text: " ", delay: 3500, type: "normal" },
-    { text: "[ALERT] Unsecured referral dependency detected", delay: 4000, type: "alert" },
-    { text: "[ALERT] No pipeline observability found in layer 2", delay: 4800, type: "alert" },
-    { text: "[ERROR] Low signal integrity. High noise ratio.", delay: 5500, type: "error" },
-    { text: "[FATAL] External dependency exposure active on multiple vectors.", delay: 6200, type: "error" },
-    { text: " ", delay: 6800, type: "normal" },
-    { text: "----------------------------------------", delay: 7200, type: "normal" },
-    { text: "RISK LEVEL: CRITICAL", delay: 7800, type: "error" },
-    { text: "Tu sistema opera como una red sin segmentación ni control.", delay: 8400, type: "alert" },
-    { text: "----------------------------------------", delay: 8600, type: "normal" },
+    { text: "Running acquisition surface scan...", delay: 200, type: "normal" },
+    { text: "Authenticating modules... OK", delay: 500, type: "normal" },
+    { text: "Scanning dependency tree...", delay: 800, type: "alert" },
+    { text: "[ALERT] Unsecured referral dependency detected", delay: 1100, type: "alert" },
+    { text: "[ALERT] No pipeline observability found in layer 2", delay: 1400, type: "alert" },
+    { text: "[ERROR] 14 intentos de venta rebotados este mes por fatiga de canal", delay: 1700, type: "error" },
+    { text: "[FATAL] 87% del esfuerzo impactando contra ruido comercial", delay: 2000, type: "error" },
+    { text: "----------------------------------------", delay: 2200, type: "normal" },
+    { text: "RISK LEVEL: CRITICAL", delay: 2400, type: "error" },
+    { text: "Tu sistema opera como una red sin segmentación ni control.", delay: 2600, type: "alert" },
+    { text: "----------------------------------------", delay: 2800, type: "normal" },
   ];
 
   useEffect(() => {
@@ -40,7 +38,7 @@ const RealTimeScan = ({ isScanActive, onScanComplete }) => {
         setTimeout(() => {
           document.getElementById('vulnerability-map')?.scrollIntoView({ behavior: 'smooth' });
         }, 100);
-      }, 8500);
+      }, 3000);
       return () => clearTimeout(scrollTimer);
     }
   }, [isScanActive, onScanComplete]);
@@ -68,7 +66,9 @@ const RealTimeScan = ({ isScanActive, onScanComplete }) => {
           
           <div className="flex flex-col gap-4 relative z-10">
             {!isScanActive && (
-              <p className="text-structure text-sm">Esperando inicialización...</p>
+              <p className="text-structure text-sm mb-4">
+                El mercado Enterprise fluye de largo frente a tus narices. Extermina la esperanza y conecta telemetría absoluta.
+              </p>
             )}
 
             {scanSequence.map((line, index) => (
