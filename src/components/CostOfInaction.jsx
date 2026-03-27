@@ -1,63 +1,75 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { TrendingDown, Activity, AlertOctagon } from 'lucide-react';
+import NextButton from './NextButton';
+import { useAudio } from '../hooks/useAudio';
+import { AudioVisualizer } from './AudioVisualizer';
 
-const CostOfInaction = () => {
+const CostOfInaction = ({ onComplete }) => {
+  const [step, setStep] = useState(0);
+
+  const cards = [
+    {
+      icon: TrendingDown,
+      title: "Leads Esfumados",
+      desc: "Oportunidades High-Ticket perdidas mes a mes por fricción técnica en tu embudo o total falta de autoridad B2B frente a directivos competidores.",
+      metric: "~$25k - $50k",
+      sub: "Revenue Perdido / Mes",
+      audio: "/audio/cost-1.mp3"
+    },
+    {
+      icon: AlertOctagon,
+      title: "Ruleta Rusa Operativa",
+      desc: "Depender de 3 o 4 clientes ancla no es 'estabilidad comercial', es jugar a la ruleta rusa con el P&L de tu firma de ciberseguridad.",
+      metric: "Colapso del 40%",
+      sub: "Ante un solo churn crítico",
+      audio: "/audio/cost-2.mp3"
+    },
+    {
+      icon: Activity,
+      title: "Valoración Destruida",
+      desc: "Empresas basadas en el talento de los fundadores (sin sistemas automatizados repetibles) se valoran a múltiplos ridículamente bajos ante fusiones o inversión.",
+      metric: "-3x Múltiplo EBIT",
+      sub: "Penalización en M&A",
+      audio: "/audio/cost-3.mp3"
+    }
+  ];
+
+  const current = cards[step];
+  const Icon = current.icon;
+  const { isFinished } = useAudio(current.audio);
+
   return (
-    <section id="phase-4" className="w-full min-h-screen py-24 px-4 flex flex-col items-center justify-center relative bg-[#030303] border-b border-structure/30">
-      <div className="w-full max-w-5xl mx-auto">
-        
-        <div className="mb-16 text-center">
-          <span className="text-red-500 font-mono text-sm tracking-widest uppercase mb-4 block">[ ALERTA DE RIESGO FINANCIERO ]</span>
-          <h2 className="text-3xl md:text-5xl font-mono font-bold text-white mb-6 tracking-tight uppercase">
-            [ RUTA DE COLAPSO INMINENTE ]
-          </h2>
-          <p className="text-gray-400 max-w-2xl mx-auto text-lg">
-            Postergar la intervención estructrual hoy es amputarte cuota de mercado mañana. Blinda tu flujo de caja instalando canales de predictibilidad algorítmica. No esperes a que el colapso llegue a la junta directiva.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          
-          <div className="bg-[#0a0a0a] border border-structure p-8 flex flex-col items-center text-center group hover:border-red-900/50 transition-colors">
-            <TrendingDown size={40} className="text-gray-600 group-hover:text-red-500 transition-colors mb-6" />
-            <h3 className="text-xl font-bold text-white mb-3">Leads Esfumados</h3>
-            <p className="text-gray-400 text-sm font-mono mb-6">
-              Oportunidades High-Ticket perdidas por fricción técnica en tu embudo o total falta de autoridad B2B frente a competidores directos.
-            </p>
-            <div className="mt-auto">
-              <span className="block text-2xl font-bold text-red-500 font-mono">~$25k - $50k</span>
-              <span className="text-xs text-gray-500 uppercase tracking-widest">Revenue Perdido / Mes</span>
-            </div>
-          </div>
-
-          <div className="bg-[#0a0a0a] border border-structure p-8 flex flex-col items-center text-center group hover:border-red-900/50 transition-colors">
-            <AlertOctagon size={40} className="text-gray-600 group-hover:text-red-500 transition-colors mb-6" />
-            <h3 className="text-xl font-bold text-white mb-3">Ruleta Rusa de Dependencia</h3>
-            <p className="text-gray-400 text-sm font-mono mb-6">
-              Depender de 3 clientes ancla no es 'estabilidad', es jugar a la ruleta rusa con el P&L. Un solo churn destruirá el 40% de tu operatividad.
-            </p>
-            <div className="mt-auto">
-              <span className="block text-2xl font-bold text-red-500 font-mono">Colapso del 40%</span>
-              <span className="text-xs text-gray-500 uppercase tracking-widest">En caso de retención fallida</span>
-            </div>
-          </div>
-
-          <div className="bg-[#0a0a0a] border border-structure p-8 flex flex-col items-center text-center group hover:border-red-900/50 transition-colors">
-            <Activity size={40} className="text-gray-600 group-hover:text-red-500 transition-colors mb-6" />
-            <h3 className="text-xl font-bold text-white mb-3">Valoración Destruida</h3>
-            <p className="text-gray-400 text-sm font-mono mb-6">
-              Empresas basadas en el fundador (sin sistemas repetibles) se valoran a múltiplos ridículamente bajos ante posibles fusiones o ventas (M&A).
-            </p>
-            <div className="mt-auto">
-              <span className="block text-2xl font-bold text-red-500 font-mono">-3x Múltiplo EBIT</span>
-              <span className="text-xs text-gray-500 uppercase tracking-widest">Penalización de M&A</span>
-            </div>
-          </div>
-
-        </div>
-
+    <div className="w-full max-w-lg mx-auto flex flex-col items-center justify-center animate-in fade-in slide-in-from-bottom-5 duration-500 mt-[-5vh]">
+      <div className="mb-6 md:mb-8 text-center">
+        <span className="text-red-500 font-mono text-xs md:text-sm tracking-widest uppercase mb-2 md:mb-4 block">[ RIESGO FINANCIERO {step + 1}/{cards.length} ]</span>
+        <h2 className="text-2xl md:text-3xl font-mono font-bold text-white tracking-tight uppercase">
+          RUTA DE COLAPSO
+        </h2>
       </div>
-    </section>
+
+      <div className="bg-[#0a0a0a] border border-structure p-6 md:p-10 flex flex-col items-center text-center w-full border-red-900/30 shadow-[0_0_40px_rgba(255,0,0,0.03)]">
+        <Icon size={48} className="text-red-500 mb-6 drop-shadow-[0_0_15px_rgba(255,0,0,0.5)]" />
+        <h3 className="text-xl md:text-2xl font-bold text-white mb-4 uppercase tracking-widest">{current.title}</h3>
+        <p className="text-gray-400 text-sm md:text-base font-mono mb-6 md:mb-8 leading-relaxed">
+          {current.desc}
+        </p>
+        <div className="mt-auto w-full border-t border-structure/50 pt-6">
+          <span className="block text-2xl md:text-4xl font-bold text-red-500 font-mono mb-2">{current.metric}</span>
+          <span className="text-[10px] md:text-xs text-gray-500 uppercase tracking-widest">{current.sub}</span>
+        </div>
+      </div>
+
+      <div className="h-[96px] md:h-[116px] w-full mt-4 md:mt-2 transition-all">
+        {isFinished ? (
+          <NextButton 
+            onClick={() => step < cards.length - 1 ? setStep(step + 1) : onComplete()} 
+            text={step < cards.length - 1 ? "Examinar Siguiente Riesgo" : "Siguiente > Roadmap de Ejecución"} 
+          />
+        ) : (
+          <AudioVisualizer />
+        )}
+      </div>
+    </div>
   );
 };
 

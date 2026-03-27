@@ -69,7 +69,7 @@ const ResultsFilter = () => {
             </li>
             <li className="flex items-center gap-3 text-gray-400 group">
               <X size={18} className="text-red-500 group-hover:scale-110 transition-transform" />
-              <span>Ticket mínimo requerido de comercialización: <span className="text-white">$30K+</span></span>
+              <span>Ticket mínimo requerido de comercialización: <span className="text-white">$40K+</span></span>
             </li>
           </ul>
         </div>

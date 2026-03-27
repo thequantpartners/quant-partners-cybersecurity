@@ -172,9 +172,6 @@ const Hero = ({ onStartScan }) => {
 
   const executeDiagnostic = () => {
     if (onStartScan) onStartScan();
-    setTimeout(() => {
-      document.getElementById('real-time-scan')?.scrollIntoView({ behavior: 'smooth' });
-    }, 50);
   };
 
   return (
@@ -224,10 +221,10 @@ const Hero = ({ onStartScan }) => {
         
         <button 
           onClick={executeDiagnostic}
-          className="group relative px-8 py-4 bg-background/80 backdrop-blur-sm border border-signals text-signals font-mono font-bold uppercase tracking-widest hover:bg-signals hover:text-background transition-all duration-300"
+          className="group relative px-6 md:px-8 py-4 bg-background/80 backdrop-blur-sm border border-signals text-signals font-mono font-bold uppercase tracking-widest text-xs md:text-base whitespace-nowrap hover:bg-signals hover:text-background transition-all duration-300"
         >
           [ Ejecutar diagnóstico ]
-          <span className="absolute inset-0 border border-signals scale-[1.05] opacity-0 group-hover:scale-100 group-hover:opacity-100 transition-all duration-300"></span>
+          <span className="absolute inset-0 border border-signals scale-[1.05] opacity-0 group-hover:scale-100 group-hover:opacity-100 transition-all duration-300 pointer-events-none"></span>
         </button>
       </div>
     </section>

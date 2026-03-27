@@ -17,7 +17,7 @@ const questionBlocks = [
     title: "FILTRO 1: AUTORIDAD CORPORATIVA",
     questions: [
       { id: 'q1', type: 'radio', label: '1. ¿Cuál es tu rol exacto y nivel de autoridad financiera corporativa?', options: ['CEO / Founder (Tengo control absoluto del P&L)', 'CISO / Director de IT (Con presupuesto aprobado)', 'Personal Operativo / Analista (No decido presupuestos)', 'Investigando opciones para reportar a mi superior'] },
-      { id: 'q2', type: 'radio', label: '2. Sinceramente, ¿tienen hoy la liquidez reservada para invertir $+30k USD en la reestructuración de su infraestructura comercial si demostramos un ROI certero?', options: ['Sí, el capital está disponible para ejecución inmediata', 'No, actualmente operamos con flujo de caja crítico', 'Depende de la evaluación y aprobación de una junta'] }
+      { id: 'q2', type: 'radio', label: '2. Sinceramente, ¿tienen hoy la liquidez reservada para invertir $+40k USD en la reestructuración de su infraestructura comercial si demostramos un ROI certero?', options: ['Sí, el capital está disponible para ejecución inmediata', 'No, actualmente operamos con flujo de caja crítico', 'Depende de la evaluación y aprobación de una junta'] }
     ]
   },
   {
@@ -81,7 +81,7 @@ const questionBlocks = [
     title: "FILTRO 9: VELOCIDAD Y COMPROMISO C-LEVEL",
     questions: [
       { id: 'q17', type: 'radio', label: '17. La construcción real requiere sudor táctico. ¿Dispones de 5 a 6 horas inamovibles a la semana, a nivel directivo, para supervisar arquitecturas P&L y corregir cuellos de botella?', options: ['Sí, lo agendo hoy mismo', 'Probablemente, depende de emergencias', 'No, delego completamente todo', 'Físicamente imposible en mi agenda actual'] },
-      { id: 'q18', type: 'textarea', label: '18. La barrera final: ¿Por qué deberíamos invertir 90 días cerrados de nuestro equipo de ingeniería e infraestructura de $+30k en tu empresa y no irnos a trabajar con tu principal competidor? (Véndenos por qué valen la pena el riesgo operativo)' }
+      { id: 'q18', type: 'textarea', label: '18. La barrera final: ¿Por qué deberíamos invertir 90 días cerrados de nuestro equipo de ingeniería e infraestructura de $+40k en tu empresa y no irnos a trabajar con tu principal competidor? (Véndenos por qué valen la pena el riesgo operativo)' }
     ]
   },
   {
@@ -92,6 +92,16 @@ const questionBlocks = [
       { id: 'q20', type: 'textarea', label: '20. ¿Por qué instalar una arquitectura de ventas predictiva es un proyecto de supervivencia corporativa para ESTE trimestre y no para el siguiente año? ¿Cuánto dinero perderás por costo de oportunidad si aplazas esta decisión 6 meses más?' }
     ]
   }
+];
+
+export const flattenedBlocks = [
+  questionBlocks[0],
+  ...questionBlocks.slice(1).flatMap(block => 
+    block.questions.map(q => ({
+      title: block.title,
+      questions: [q]
+    }))
+  )
 ];
 
 const countryCodes = [
@@ -187,7 +197,7 @@ const QualificationWizard = ({ onClose }) => {
 
   const validateStep = () => {
     setError('');
-    const currentQuestions = questionBlocks[currentStep].questions;
+    const currentQuestions = flattenedBlocks[currentStep].questions;
     
     // Step 0 - Heavy Anti-Spam Validation
     if (currentStep === 0) {
@@ -219,7 +229,7 @@ const QualificationWizard = ({ onClose }) => {
         
         // Anti-laziness check (evitar inputs como "ok", "asdsad", "no se")
         if (q.type === 'textarea' && formData[q.id].trim().length < 15) {
-          return 'Detectamos respuestas incompletas. Una auditoría de $30k USD exige descripciones de negocio detalladas.';
+          return 'Detectamos respuestas incompletas. Una auditoría de $40k USD exige descripciones de negocio detalladas.';
         }
       }
     }
@@ -234,7 +244,7 @@ const QualificationWizard = ({ onClose }) => {
       return;
     }
 
-    if (currentStep < questionBlocks.length - 1) {
+    if (currentStep < flattenedBlocks.length - 1) {
       setCurrentStep(prev => prev + 1);
     } else {
       // Final Step: Submit
@@ -303,7 +313,7 @@ const QualificationWizard = ({ onClose }) => {
     }
   };
 
-  const handleInputChange = (id, value, isCheckbox = false) => {
+  const handleInputChange = (id, value, isCheckbox = false, isRadio = false) => {
     if (isCheckbox) {
       const currentList = formData[id] || [];
       const newList = currentList.includes(value) 
@@ -312,12 +322,32 @@ const QualificationWizard = ({ onClose }) => {
       setFormData(prev => ({ ...prev, [id]: newList }));
     } else {
       setFormData(prev => ({ ...prev, [id]: value }));
+      if (isRadio) {
+        // Para radios, avanzamos después de una pausa visual sin pasar por validación de campos de texto
+        setTimeout(() => {
+          handleNextRadio({ [id]: value });
+        }, 450);
+      }
+    }
+  };
+
+  // Advance sin validar texto -- solo para bloques de radio puro
+  const handleNextRadio = (extraData = {}) => {
+    setError('');
+    const mergedData = { ...formData, ...extraData };
+    // Verificar que la respuesta de radio esté presente
+    const currentQ = flattenedBlocks[currentStep].questions[0];
+    if (!mergedData[currentQ.id]) return; // no avanzar si aún no tiene valor
+    if (currentStep < flattenedBlocks.length - 1) {
+      setCurrentStep(prev => prev + 1);
+    } else {
+      document.getElementById('wizard-next-btn')?.click();
     }
   };
 
   if (booting) {
     return (
-      <div className="fixed inset-0 z-[100] bg-background flex items-center justify-center font-mono">
+      <div className="w-full min-h-full flex flex-col items-center justify-center font-mono">
         <div className="text-signals text-xl md:text-2xl animate-pulse">
           {'>'} Inicializando Matrix Confidencial (PDI-V15)...
         </div>
@@ -327,7 +357,7 @@ const QualificationWizard = ({ onClose }) => {
 
   if (showCalendar) {
     return (
-      <div className="fixed inset-0 z-[100] bg-background flex flex-col items-center pt-12 px-4 overflow-y-auto scanline">
+      <div className="w-full min-h-full flex flex-col items-center pt-12 px-4 scanline">
         <div className="w-full max-w-4xl bg-[#111] border border-structure rounded-lg shadow-2xl p-4 md:p-8 relative">
 
           <div className="text-center mb-8 pt-8 border-b border-signals/30 pb-6">
@@ -458,14 +488,14 @@ const QualificationWizard = ({ onClose }) => {
 
   if (showRejection) {
     return (
-      <div className="fixed inset-0 z-[100] bg-background flex flex-col items-center pt-24 md:justify-center font-mono p-4 md:p-6 text-center scanline overflow-y-auto">
+      <div className="w-full min-h-full flex flex-col items-center pt-24 md:justify-center font-mono p-4 md:p-6 text-center scanline">
         <h2 className="text-3xl md:text-5xl font-bold text-red-500 mb-8 tracking-widest uppercase text-shadow-red animate-pulse">
            Denegación de Infraestructura
         </h2>
         
         <div className="w-full max-w-3xl border border-red-900/50 bg-[#0a0a0a] p-6 md:p-12 shadow-[0_0_50px_rgba(255,0,0,0.1)] relative">
           <p className="text-white text-lg md:text-2xl font-bold leading-relaxed text-left mb-6 font-sans">
-            La auditoría financiera arrojó resultados concluyentes. No posees la estructura operativa, la predecibilidad comercial o la autoridad ejecutiva requerida para asimilar la infraestructura Quant de $30k.
+            La auditoría financiera arrojó resultados concluyentes. No posees la estructura operativa, la predecibilidad comercial o la autoridad ejecutiva requerida para asimilar la infraestructura Quant de $+40k.
           </p>
           <div className="h-px w-full bg-red-900/50 mb-6"></div>
           <p className="text-gray-400 text-base md:text-lg leading-relaxed text-left font-sans">
@@ -487,151 +517,161 @@ const QualificationWizard = ({ onClose }) => {
     );
   }
 
-  const currentBlock = questionBlocks[currentStep];
+  const currentBlock = flattenedBlocks[currentStep];
 
   return (
-    <div className="fixed inset-0 z-[100] bg-background/95 backdrop-blur-md flex flex-col items-center pt-8 md:pt-16 px-4 overflow-y-auto font-mono scanline">
-      {/* Red Banner Requirement - C-Level Warning */}
-      <div className="w-full max-w-4xl border border-dashed border-red-600 bg-red-950/20 p-4 text-center mb-8 flex items-center justify-center gap-4 animate-pulse" style={{animationDuration: '3s'}}>
-        <AlertTriangle className="text-red-500 hidden md:block" />
-        <p className="text-red-500 font-bold text-sm md:text-base md:leading-relaxed tracking-widest uppercase">
-          [ ESTA ES UNA AUDITORÍA B2B SEVERA (40-60 MINUTOS). INICIA SÓLO SI ESTÁS DISPUESTO A DESTRUIR Y RECONSTRUIR LA ESTRUCTURA COMERCIAL "CÓMODA" QUE HOY TE ESTÁ HACIENDO PERDER PLATA. ]
-        </p>
-      </div>
+    <div className="w-full h-full bg-[#030303] flex flex-col items-center justify-center p-0 md:p-8 font-mono scanline">
+      
+      <div id="wizard-content" className="w-full h-full md:h-auto max-w-4xl bg-[#0a0a0a] border-0 md:border border-structure md:rounded-sm shadow-[0_0_80px_rgba(0,255,136,0.03)] flex flex-col relative overflow-hidden">
+        
+        {/* Subtle Top Indicator - Hidden on mobile to save space */}
+        <div className="w-full bg-[#111] border-b border-structure py-2 px-6 justify-between items-center text-[10px] text-gray-500 tracking-widest uppercase hidden md:flex">
+          <span>// VERIFICACIÓN HUMANA OBLIGATORIA</span>
+          <span className="text-signals animate-pulse">ESTADO: IN-PROGRESS</span>
+        </div>
 
-      <div className="mb-8 flex flex-col items-center">
-        <h2 className="text-2xl md:text-4xl font-bold tracking-widest text-white text-center font-mono uppercase">
-          <span className="text-signals mr-3 opacity-80">{'>'}</span>
-          Agenda Tu Llamada
-          <span className="animate-pulse ml-1 text-signals">_</span>
-        </h2>
-        <div className="h-px w-48 mt-4 bg-gradient-to-r from-transparent via-signals to-transparent opacity-60"></div>
-        <p className="text-structure mt-3 text-xs md:text-sm font-mono tracking-widest uppercase">
-          [ EJECUCIÓN ESTRATÉGICA ]
-        </p>
-      </div>
+        {/* Progress Bar */}
+        <div className="absolute top-0 md:top-[32px] left-0 h-[3px] md:h-[2px] bg-signals shadow-[0_0_15px_rgba(0,255,136,0.6)] transition-all duration-700 ease-out z-10" style={{width: `${((currentStep + 1) / flattenedBlocks.length) * 100}%`}}></div>
 
-      <div id="wizard-content" className="w-full max-w-4xl bg-[#0a0a0a] border border-structure rounded-sm shadow-2xl flex flex-col relative overflow-hidden">
-        {/* Progress Bar (Visual Hack) */}
-        <div className="absolute top-0 left-0 h-1 bg-signals transition-all duration-500 ease-out" style={{width: `${((currentStep + 1) / questionBlocks.length) * 100}%`}}></div>
-
-        <div className="p-8 md:p-14">
-          <div className="flex items-end justify-between border-b border-structure pb-6 mb-10">
+        <div className="p-5 md:p-14 flex-1 flex flex-col justify-between h-full pt-10 md:pt-14">
+          
+          <div className="flex items-center justify-between border-b border-structure pb-4 md:pb-6 mb-6 md:mb-10 shrink-0">
             <div>
-              <p className="text-signals text-xs font-bold uppercase tracking-widest mb-2 border-l-2 border-signals pl-3">
-                [ FASE DE RIESGO: {String(currentStep + 1).padStart(2, '0')} / {String(questionBlocks.length).padStart(2, '0')} ]
+              <p className="text-signals text-[10px] md:text-xs font-bold uppercase tracking-widest mb-1 md:mb-2 border-l-2 border-signals pl-2 md:pl-3">
+                [ FASE DE RIESGO: {String(currentStep + 1).padStart(2, '0')} / {String(flattenedBlocks.length).padStart(2, '0')} ]
               </p>
-              <h2 className="text-2xl md:text-3xl text-white font-bold">{currentBlock.title}</h2>
+              <h2 className="text-base md:text-2xl text-white font-bold tracking-tight">{currentBlock.title}</h2>
             </div>
-            <div className="text-structure text-sm hidden md:block">
-              // ENCRIPTACIÓN P2P ACTIVA
+            <div className="text-structure text-xs hidden md:block">
+              // ENCRIPTACIÓN P2P
             </div>
           </div>
 
-          <div className="space-y-12">
-            {currentBlock.questions.map(q => (
-              <div key={q.id} className="flex flex-col gap-5">
-                <label className="text-gray-200 font-bold text-lg md:text-xl leading-relaxed">
-                  {q.label}
-                </label>
+          <div key={`step-${currentStep}`} className="flex-1 flex flex-col justify-center animate-in fade-in slide-in-from-right-8 duration-500 overflow-y-auto pr-2 md:pr-0">
+            <div className="space-y-6 md:space-y-12 w-full my-auto pb-6">
+              {currentBlock.questions.map(q => (
+                <div key={q.id} className="flex flex-col gap-3 md:gap-5">
+                  <label className="text-gray-200 font-bold text-sm md:text-xl leading-relaxed">
+                    {q.label}
+                  </label>
 
-                {q.type === 'text' || q.type === 'email' || q.type === 'number' ? (
-                  <input 
-                    type={q.type}
-                    value={formData[q.id] || ''}
-                    onChange={(e) => handleInputChange(q.id, e.target.value)}
-                    placeholder={q.placeholder || ''}
-                    className="w-full bg-[#111] border border-structure text-white px-5 py-4 focus:outline-none focus:border-signals transition-colors placeholder-gray-700 font-sans"
-                  />
-                ) : null}
-
-                {q.type === 'phone' ? (
-                  <div className="flex bg-[#111] border border-structure focus-within:border-signals transition-colors">
-                    <select 
-                      className="bg-transparent text-white px-4 py-4 outline-none border-r border-structure cursor-pointer"
-                      value={formData.phoneCode || '+52'}
-                      onChange={(e) => handleInputChange('phoneCode', e.target.value)}
-                    >
-                      {countryCodes.map(c => (
-                        <option key={c.code} value={c.code} className="bg-background">
-                          {c.flag} {c.code}
-                        </option>
-                      ))}
-                    </select>
+                  {/* text, email, number */}
+                  {q.type === 'text' || q.type === 'email' || q.type === 'number' ? (
                     <input 
-                      type="tel"
-                      value={formData.phone || ''}
-                      onChange={(e) => handleInputChange('phone', e.target.value.replace(/[^0-9\s]/g, ''))}
-                      placeholder="Número Financiero/WhatsApp"
-                      className="w-full bg-transparent text-white px-5 py-4 focus:outline-none font-sans"
-                    />
-                  </div>
-                ) : null}
-
-                {q.type === 'textarea' ? (
-                  <div className="relative">
-                    <textarea 
-                      rows={5}
+                      type={q.type}
                       value={formData[q.id] || ''}
                       onChange={(e) => handleInputChange(q.id, e.target.value)}
-                      placeholder="Detalla tu operativa real aquí... (La brevedad será penalizada)"
-                      className="w-full bg-[#111] border border-structure text-white px-5 py-4 focus:outline-none focus:border-signals transition-colors placeholder-gray-700 resize-none font-sans"
+                      placeholder={q.placeholder || ''}
+                      className="w-full bg-[#111] border border-structure text-white px-4 py-3 md:px-5 md:py-4 focus:outline-none focus:border-signals transition-colors placeholder-gray-700 font-sans text-sm md:text-base"
                     />
-                    <div className="absolute bottom-3 right-4 text-xs font-mono text-gray-600">
-                      {(formData[q.id] || '').length} CHARS (MIN: 15)
-                    </div>
-                  </div>
-                ) : null}
+                  ) : null}
 
-                {q.type === 'radio' ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {q.options.map(opt => {
-                      const isSelected = formData[q.id] === opt;
-                      return (
-                        <button
-                          key={opt}
-                          onClick={() => handleInputChange(q.id, opt)}
-                          className={`flex items-center text-left gap-4 p-5 border transition-all duration-200 ${
-                            isSelected ? 'border-signals bg-signals/10 text-signals' : 'border-structure text-gray-400 hover:border-gray-500 bg-[#111]'
-                          }`}
-                        >
-                          <div className={`w-5 h-5 rounded-sm border flex items-center justify-center shrink-0 ${isSelected ? 'border-signals bg-signals' : 'border-gray-600'}`}>
-                            {isSelected && <Check size={14} className="text-background" />}
-                          </div>
-                          <span className="flex-1 font-sans text-[15px] leading-snug">{opt}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                ) : null}
-              </div>
-            ))}
+                  {/* phone */}
+                  {q.type === 'phone' ? (
+                    <div className="flex bg-[#111] border border-structure focus-within:border-signals transition-colors">
+                      <select 
+                        className="bg-transparent text-white px-2 py-3 md:px-4 md:py-4 outline-none border-r border-structure cursor-pointer text-sm md:text-base"
+                        value={formData.phoneCode || '+52'}
+                        onChange={(e) => handleInputChange('phoneCode', e.target.value)}
+                      >
+                        {countryCodes.map(c => (
+                          <option key={c.code} value={c.code} className="bg-background">
+                            {c.flag} {c.code}
+                          </option>
+                        ))}
+                      </select>
+                      <input 
+                        type="tel"
+                        value={formData.phone || ''}
+                        onChange={(e) => handleInputChange('phone', e.target.value.replace(/[^0-9\s]/g, ''))}
+                        placeholder="Número Financiero/WhatsApp"
+                        className="w-full bg-transparent text-white px-4 py-3 md:px-5 md:py-4 focus:outline-none font-sans text-sm md:text-base min-w-0"
+                      />
+                    </div>
+                  ) : null}
+
+                  {/* textarea */}
+                  {q.type === 'textarea' ? (
+                    <div className="relative">
+                      <textarea 
+                        rows={4}
+                        value={formData[q.id] || ''}
+                        onChange={(e) => handleInputChange(q.id, e.target.value)}
+                        placeholder="Detalla tu operativa real aquí... (La brevedad será penalizada)"
+                        className="w-full bg-[#111] border border-structure text-white px-4 py-3 md:px-5 md:py-4 focus:outline-none focus:border-signals transition-colors placeholder-gray-700 resize-none font-sans text-sm md:text-base"
+                      />
+                      <div className="absolute bottom-2 right-3 text-[10px] md:text-xs font-mono text-gray-600">
+                        {(formData[q.id] || '').length} CHARS (MIN: 15)
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {/* radio */}
+                  {q.type === 'radio' ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                      {q.options.map(opt => {
+                        const isSelected = formData[q.id] === opt;
+                        return (
+                          <button
+                            key={opt}
+                            onClick={() => handleInputChange(q.id, opt, false, true)}
+                            className={`flex items-center text-left gap-3 md:gap-4 p-4 md:p-5 border transition-all duration-200 ${
+                              isSelected ? 'border-signals bg-signals/10 text-signals shadow-[0_0_15px_rgba(0,255,136,0.1)]' : 'border-structure text-gray-400 hover:border-gray-500 bg-[#111]'
+                            }`}
+                          >
+                            <div className={`w-4 h-4 md:w-5 md:h-5 rounded-sm border flex items-center justify-center shrink-0 ${isSelected ? 'border-signals bg-signals' : 'border-gray-600'}`}>
+                              {isSelected && <Check size={12} className="text-background" />}
+                            </div>
+                            <span className="flex-1 font-sans text-xs md:text-[15px] leading-snug">{opt}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ) : null}
+                </div>
+              ))}
+            </div>
           </div>
 
           {error && (
-            <div className="mt-10 p-5 bg-red-950/50 border-l-4 border-red-600 text-red-500 flex items-center gap-4 animate-in fade-in">
-              <ShieldAlert size={24} className="shrink-0" />
-              <span className="font-bold tracking-wide">{error}</span>
+            <div className="mt-4 md:mt-6 p-3 md:p-4 bg-red-950/50 border-l-4 border-red-600 text-red-500 flex items-center gap-3 animate-in fade-in shrink-0">
+              <ShieldAlert size={18} className="shrink-0" />
+              <span className="font-bold tracking-wide text-[10px] md:text-sm">{error}</span>
             </div>
           )}
 
-          <div className="mt-14 flex justify-between items-center bg-[#050505] p-6 border border-structure">
-            <div className="text-gray-500 text-xs hidden sm:block uppercase tracking-widest">
-              {'< C-LEVEL CONFIDENTIALITY ENFORCED >'}
+          {/* Mostrar el footer del boton SOLO si el bloque tiene preguntas que requieren input manual */}
+          {currentBlock.questions.some(q => q.type !== 'radio') && (
+            <div className="mt-4 md:mt-8 flex justify-between items-center bg-[#050505] p-3 md:p-6 border border-structure shrink-0 w-full">
+              <div className="text-gray-500 text-[10px] md:text-xs hidden sm:block uppercase tracking-widest">
+                {'< C-LEVEL CONFIDENTIALITY >'}
+              </div>
+              
+              <button 
+                id="wizard-next-btn"
+                onClick={handleNext}
+                disabled={isSubmitting}
+                className="flex items-center justify-center gap-2 md:gap-3 bg-signals text-background px-4 py-3 md:px-10 md:py-4 font-bold uppercase tracking-widest transition-all hover:bg-emerald-400 disabled:opacity-50 text-[11px] md:text-sm whitespace-nowrap w-full sm:w-auto shadow-[0_0_15px_rgba(0,255,136,0.2)]"
+              >
+                {isSubmitting ? 'ANALIZANDO...' : 'CONFIRMAR Y AVANZAR'}
+                {!isSubmitting && <ChevronRight size={16} />}
+              </button>
             </div>
-            
-            <button 
+          )}
+
+          {/* Boton oculto para compatibilidad con el flujo de radio-auto-advance final */}
+          {!currentBlock.questions.some(q => q.type !== 'radio') && (
+            <button
+              id="wizard-next-btn"
               onClick={handleNext}
               disabled={isSubmitting}
-              className="flex items-center gap-3 bg-signals text-background px-10 py-4 font-bold uppercase tracking-widest transition-all hover:bg-emerald-400 hover:shadow-[0_0_25px_rgba(0,255,136,0.3)] disabled:opacity-50"
-            >
-              {isSubmitting ? 'ANALIZANDO TELEMETRÍA...' : 'CONFIRMAR Y AVANZAR'}
-              {!isSubmitting && <ChevronRight size={20} />}
-            </button>
-          </div>
+              className="hidden"
+              aria-hidden="true"
+            />
+          )}
+          
         </div>
       </div>
-      <div className="h-32"></div>
     </div>
   );
 };
