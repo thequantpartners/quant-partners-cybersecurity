@@ -99,7 +99,7 @@ const ScrambledTitle = () => {
   return (
     <span 
       ref={elementRef}
-      className="text-signals text-glow uppercase block mt-2 whitespace-normal break-words text-2xl sm:text-3xl md:text-5xl lg:text-6xl"
+      className="text-signals text-glow uppercase block mt-1 whitespace-normal break-words text-xl sm:text-3xl md:text-5xl lg:text-6xl"
       style={{ fontFamily: 'var(--font-mono)' }}
     >
       VULNERABILIDADES CRÍTICAS
@@ -175,7 +175,7 @@ const Hero = ({ onStartScan }) => {
   };
 
   return (
-    <section className="relative w-full h-screen bg-background overflow-hidden flex flex-col justify-center items-start pt-20">
+    <section className="relative w-full h-[100dvh] bg-background overflow-hidden flex flex-col justify-center items-start">
       
       {/* Raining Characters Background */}
       <div className="absolute inset-0 z-0 pointer-events-none">
@@ -184,8 +184,8 @@ const Hero = ({ onStartScan }) => {
             key={index}
             className={`absolute transition-colors duration-100 ${
               activeIndices.has(index)
-                ? "text-signals z-10 font-bold animate-pulse text-2xl md:text-3xl"
-                : "text-gray-800 font-light text-xl md:text-2xl"
+                ? "text-signals z-10 font-bold animate-pulse text-xl md:text-3xl"
+                : "text-gray-800 font-light text-lg md:text-2xl"
             }`}
             style={{
               left: `${char.x}%`,
@@ -204,24 +204,25 @@ const Hero = ({ onStartScan }) => {
       </div>
 
       {/* Main Content */}
-      <div className="relative z-20 w-full max-w-7xl mx-auto px-6">
-        <h1 className="text-3xl md:text-5xl font-bold tracking-tight mb-8 drop-shadow-lg leading-tight">
+      <div className="relative z-20 w-full max-w-7xl mx-auto px-5 md:px-6">
+        <h1 className="text-2xl md:text-5xl font-bold tracking-tight mb-3 md:mb-8 drop-shadow-lg leading-tight">
           Tu sistema de adquisición tiene 
           <ScrambledTitle />
         </h1>
         
-        <p className="text-xl md:text-2xl text-gray-300 max-w-2xl mb-12 font-mono drop-shadow-md">
-          Tu tecnología es de élite, pero tu arquitectura comercial es un colador de papel. Estás perdiendo contratos Enterprise hoy mismo porque operas tu adquisición como un vendedor aficionado, no como un operador logístico.
+        <p className="text-sm md:text-2xl text-gray-300 max-w-2xl mb-4 md:mb-12 font-mono drop-shadow-md leading-relaxed">
+          <span className="hidden md:inline">Tu tecnología es de élite, pero tu arquitectura comercial es un colador de papel. Estás perdiendo contratos Enterprise hoy mismo porque operas tu adquisición como un vendedor aficionado, no como un operador logístico.</span>
+          <span className="md:hidden">Tu arquitectura comercial es un colador de papel. Estás perdiendo contratos Enterprise por operar como aficionado.</span>
         </p>
         
-        <div className="text-sm font-mono text-gray-400 mb-8 border-l-2 border-signals pl-4 uppercase tracking-widest backdrop-blur-sm bg-background/30 max-w-fit pr-4 py-2">
+        <div className="text-xs md:text-sm font-mono text-gray-400 mb-4 md:mb-8 border-l-2 border-signals pl-3 md:pl-4 uppercase tracking-widest backdrop-blur-sm bg-background/30 max-w-fit pr-3 md:pr-4 py-1 md:py-2">
           <p>No es falta de leads.</p>
           <p className="text-white mt-1">Es insolvencia técnica en la captación.</p>
         </div>
         
         <button 
           onClick={executeDiagnostic}
-          className="group relative px-6 md:px-8 py-4 bg-background/80 backdrop-blur-sm border border-signals text-signals font-mono font-bold uppercase tracking-widest text-xs md:text-base whitespace-nowrap hover:bg-signals hover:text-background transition-all duration-300"
+          className="group relative px-5 md:px-8 py-3 md:py-4 bg-background/80 backdrop-blur-sm border border-signals text-signals font-mono font-bold uppercase tracking-widest text-xs md:text-base whitespace-nowrap hover:bg-signals hover:text-background transition-all duration-300"
         >
           [ Ejecutar diagnóstico ]
           <span className="absolute inset-0 border border-signals scale-[1.05] opacity-0 group-hover:scale-100 group-hover:opacity-100 transition-all duration-300 pointer-events-none"></span>
