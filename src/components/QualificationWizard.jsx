@@ -94,16 +94,6 @@ const questionBlocks = [
   }
 ];
 
-export const flattenedBlocks = [
-  questionBlocks[0],
-  ...questionBlocks.slice(1).flatMap(block => 
-    block.questions.map(q => ({
-      title: block.title,
-      questions: [q]
-    }))
-  )
-];
-
 const countryCodes = [
   { code: '+52', flag: '🇲🇽', name: 'MX' },
   { code: '+34', flag: '🇪🇸', name: 'ES' },
@@ -197,7 +187,7 @@ const QualificationWizard = ({ onClose }) => {
 
   const validateStep = () => {
     setError('');
-    const currentQuestions = flattenedBlocks[currentStep].questions;
+    const currentQuestions = questionBlocks[currentStep].questions;
     
     // Step 0 - Heavy Anti-Spam Validation
     if (currentStep === 0) {
@@ -244,7 +234,7 @@ const QualificationWizard = ({ onClose }) => {
       return;
     }
 
-    if (currentStep < flattenedBlocks.length - 1) {
+    if (currentStep < questionBlocks.length - 1) {
       setCurrentStep(prev => prev + 1);
     } else {
       // Final Step: Submit
@@ -313,35 +303,15 @@ const QualificationWizard = ({ onClose }) => {
     }
   };
 
-  const handleInputChange = (id, value, isCheckbox = false, isRadio = false) => {
+  const handleInputChange = (id, value, isCheckbox = false) => {
     if (isCheckbox) {
       const currentList = formData[id] || [];
-      const newList = currentList.includes(value) 
+      const newList = currentList.includes(value)
         ? currentList.filter(item => item !== value)
         : [...currentList, value];
       setFormData(prev => ({ ...prev, [id]: newList }));
     } else {
       setFormData(prev => ({ ...prev, [id]: value }));
-      if (isRadio) {
-        // Para radios, avanzamos después de una pausa visual sin pasar por validación de campos de texto
-        setTimeout(() => {
-          handleNextRadio({ [id]: value });
-        }, 450);
-      }
-    }
-  };
-
-  // Advance sin validar texto -- solo para bloques de radio puro
-  const handleNextRadio = (extraData = {}) => {
-    setError('');
-    const mergedData = { ...formData, ...extraData };
-    // Verificar que la respuesta de radio esté presente
-    const currentQ = flattenedBlocks[currentStep].questions[0];
-    if (!mergedData[currentQ.id]) return; // no avanzar si aún no tiene valor
-    if (currentStep < flattenedBlocks.length - 1) {
-      setCurrentStep(prev => prev + 1);
-    } else {
-      document.getElementById('wizard-next-btn')?.click();
     }
   };
 
@@ -517,60 +487,58 @@ const QualificationWizard = ({ onClose }) => {
     );
   }
 
-  const currentBlock = flattenedBlocks[currentStep];
+  const currentBlock = questionBlocks[currentStep];
 
   return (
-    <div className="w-full h-full bg-[#030303] flex flex-col items-center justify-center p-0 md:p-8 font-mono scanline">
-      
-      <div id="wizard-content" className="w-full h-full md:h-auto max-w-4xl bg-[#0a0a0a] border-0 md:border border-structure md:rounded-sm shadow-[0_0_80px_rgba(0,255,136,0.03)] flex flex-col relative overflow-hidden">
-        
-        {/* Subtle Top Indicator - Hidden on mobile to save space */}
-        <div className="w-full bg-[#111] border-b border-structure py-2 px-6 justify-between items-center text-[10px] text-gray-500 tracking-widest uppercase hidden md:flex">
+    <div className="w-full h-full bg-[#030303] flex flex-col items-center justify-center p-0 font-mono scanline">
+
+      <div id="wizard-content" className="w-full h-full max-w-3xl bg-[#0a0a0a] border-0 md:border border-structure flex flex-col relative overflow-hidden">
+
+        {/* Top Indicator */}
+        <div className="w-full bg-[#111] border-b border-structure py-1 px-3 justify-between items-center text-[9px] text-gray-500 tracking-widest uppercase hidden md:flex shrink-0">
           <span>// VERIFICACIÓN HUMANA OBLIGATORIA</span>
-          <span className="text-signals animate-pulse">ESTADO: IN-PROGRESS</span>
+          <span className="text-signals animate-pulse">IN-PROGRESS</span>
         </div>
 
         {/* Progress Bar */}
-        <div className="absolute top-0 md:top-[32px] left-0 h-[3px] md:h-[2px] bg-signals shadow-[0_0_15px_rgba(0,255,136,0.6)] transition-all duration-700 ease-out z-10" style={{width: `${((currentStep + 1) / flattenedBlocks.length) * 100}%`}}></div>
+        <div className="absolute top-0 md:top-[24px] left-0 h-[2px] bg-signals shadow-[0_0_10px_rgba(0,255,136,0.6)] transition-all duration-700 ease-out z-10" style={{width: `${((currentStep + 1) / questionBlocks.length) * 100}%`}}></div>
 
-        <div className="p-5 md:p-14 flex-1 flex flex-col justify-between h-full pt-10 md:pt-14">
-          
-          <div className="flex items-center justify-between border-b border-structure pb-4 md:pb-6 mb-6 md:mb-10 shrink-0">
+        <div className="px-4 py-2 md:px-6 md:py-3 flex-1 flex flex-col justify-between h-full min-h-0">
+
+          <div className="flex items-center justify-between border-b border-structure pb-2 mb-2 shrink-0">
             <div>
-              <p className="text-signals text-[10px] md:text-xs font-bold uppercase tracking-widest mb-1 md:mb-2 border-l-2 border-signals pl-2 md:pl-3">
-                [ FASE DE RIESGO: {String(currentStep + 1).padStart(2, '0')} / {String(flattenedBlocks.length).padStart(2, '0')} ]
+              <p className="text-signals text-[9px] font-bold uppercase tracking-widest mb-0.5 border-l-2 border-signals pl-2">
+                [ FASE {String(currentStep + 1).padStart(2, '0')} / {String(questionBlocks.length).padStart(2, '0')} ]
               </p>
-              <h2 className="text-base md:text-2xl text-white font-bold tracking-tight">{currentBlock.title}</h2>
+              <h2 className="text-xs md:text-sm text-white font-bold tracking-tight">{currentBlock.title}</h2>
             </div>
-            <div className="text-structure text-xs hidden md:block">
-              // ENCRIPTACIÓN P2P
-            </div>
+            <div className="text-structure text-[8px] hidden md:block opacity-40">// P2P ENC</div>
           </div>
 
-          <div key={`step-${currentStep}`} className="flex-1 flex flex-col justify-center animate-in fade-in slide-in-from-right-8 duration-500 overflow-y-auto pr-2 md:pr-0">
-            <div className="space-y-6 md:space-y-12 w-full my-auto pb-6">
+          <div key={`step-${currentStep}`} className="flex-1 flex flex-col justify-center animate-in fade-in slide-in-from-right-8 duration-500 overflow-y-auto pr-1 min-h-0">
+            <div className="space-y-2 w-full">
               {currentBlock.questions.map(q => (
-                <div key={q.id} className="flex flex-col gap-3 md:gap-5">
-                  <label className="text-gray-200 font-bold text-sm md:text-xl leading-relaxed">
+                <div key={q.id} className="flex flex-col gap-1">
+                  <label className="text-gray-200 font-bold text-xs md:text-sm leading-snug">
                     {q.label}
                   </label>
 
                   {/* text, email, number */}
                   {q.type === 'text' || q.type === 'email' || q.type === 'number' ? (
-                    <input 
+                    <input
                       type={q.type}
                       value={formData[q.id] || ''}
                       onChange={(e) => handleInputChange(q.id, e.target.value)}
                       placeholder={q.placeholder || ''}
-                      className="w-full bg-[#111] border border-structure text-white px-4 py-3 md:px-5 md:py-4 focus:outline-none focus:border-signals transition-colors placeholder-gray-700 font-sans text-sm md:text-base"
+                      className="w-full bg-[#111] border border-structure text-white px-3 py-1.5 focus:outline-none focus:border-signals transition-colors placeholder-gray-700 font-sans text-xs md:text-sm"
                     />
                   ) : null}
 
                   {/* phone */}
                   {q.type === 'phone' ? (
                     <div className="flex bg-[#111] border border-structure focus-within:border-signals transition-colors">
-                      <select 
-                        className="bg-transparent text-white px-2 py-3 md:px-4 md:py-4 outline-none border-r border-structure cursor-pointer text-sm md:text-base"
+                      <select
+                        className="bg-transparent text-white px-2 py-1.5 outline-none border-r border-structure cursor-pointer text-xs md:text-sm"
                         value={formData.phoneCode || '+52'}
                         onChange={(e) => handleInputChange('phoneCode', e.target.value)}
                       >
@@ -580,12 +548,12 @@ const QualificationWizard = ({ onClose }) => {
                           </option>
                         ))}
                       </select>
-                      <input 
+                      <input
                         type="tel"
                         value={formData.phone || ''}
                         onChange={(e) => handleInputChange('phone', e.target.value.replace(/[^0-9\s]/g, ''))}
-                        placeholder="Número Financiero/WhatsApp"
-                        className="w-full bg-transparent text-white px-4 py-3 md:px-5 md:py-4 focus:outline-none font-sans text-sm md:text-base min-w-0"
+                        placeholder="Número WhatsApp"
+                        className="w-full bg-transparent text-white px-3 py-1.5 focus:outline-none font-sans text-xs md:text-sm min-w-0"
                       />
                     </div>
                   ) : null}
@@ -593,36 +561,36 @@ const QualificationWizard = ({ onClose }) => {
                   {/* textarea */}
                   {q.type === 'textarea' ? (
                     <div className="relative">
-                      <textarea 
-                        rows={4}
+                      <textarea
+                        rows={2}
                         value={formData[q.id] || ''}
                         onChange={(e) => handleInputChange(q.id, e.target.value)}
-                        placeholder="Detalla tu operativa real aquí... (La brevedad será penalizada)"
-                        className="w-full bg-[#111] border border-structure text-white px-4 py-3 md:px-5 md:py-4 focus:outline-none focus:border-signals transition-colors placeholder-gray-700 resize-none font-sans text-sm md:text-base"
+                        placeholder="Detalla tu operativa real aquí..."
+                        className="w-full bg-[#111] border border-structure text-white px-3 py-1.5 focus:outline-none focus:border-signals transition-colors placeholder-gray-700 resize-none font-sans text-xs md:text-sm"
                       />
-                      <div className="absolute bottom-2 right-3 text-[10px] md:text-xs font-mono text-gray-600">
-                        {(formData[q.id] || '').length} CHARS (MIN: 15)
+                      <div className="absolute bottom-1 right-2 text-[8px] font-mono text-gray-600">
+                        {(formData[q.id] || '').length}/min 15
                       </div>
                     </div>
                   ) : null}
 
                   {/* radio */}
                   {q.type === 'radio' ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-1">
                       {q.options.map(opt => {
                         const isSelected = formData[q.id] === opt;
                         return (
                           <button
                             key={opt}
-                            onClick={() => handleInputChange(q.id, opt, false, true)}
-                            className={`flex items-center text-left gap-3 md:gap-4 p-4 md:p-5 border transition-all duration-200 ${
-                              isSelected ? 'border-signals bg-signals/10 text-signals shadow-[0_0_15px_rgba(0,255,136,0.1)]' : 'border-structure text-gray-400 hover:border-gray-500 bg-[#111]'
+                            onClick={() => handleInputChange(q.id, opt)}
+                            className={`flex items-center text-left gap-2 px-2 py-1.5 border transition-all duration-200 ${
+                              isSelected ? 'border-signals bg-signals/10 text-signals' : 'border-structure text-gray-400 hover:border-gray-500 bg-[#111]'
                             }`}
                           >
-                            <div className={`w-4 h-4 md:w-5 md:h-5 rounded-sm border flex items-center justify-center shrink-0 ${isSelected ? 'border-signals bg-signals' : 'border-gray-600'}`}>
-                              {isSelected && <Check size={12} className="text-background" />}
+                            <div className={`w-3 h-3 rounded-sm border flex items-center justify-center shrink-0 ${isSelected ? 'border-signals bg-signals' : 'border-gray-600'}`}>
+                              {isSelected && <Check size={8} className="text-background" />}
                             </div>
-                            <span className="flex-1 font-sans text-xs md:text-[15px] leading-snug">{opt}</span>
+                            <span className="flex-1 font-sans text-xs md:text-sm leading-tight">{opt}</span>
                           </button>
                         );
                       })}
@@ -634,41 +602,24 @@ const QualificationWizard = ({ onClose }) => {
           </div>
 
           {error && (
-            <div className="mt-4 md:mt-6 p-3 md:p-4 bg-red-950/50 border-l-4 border-red-600 text-red-500 flex items-center gap-3 animate-in fade-in shrink-0">
-              <ShieldAlert size={18} className="shrink-0" />
-              <span className="font-bold tracking-wide text-[10px] md:text-sm">{error}</span>
+            <div className="mt-1.5 p-2 bg-red-950/50 border-l-4 border-red-600 text-red-500 flex items-center gap-2 animate-in fade-in shrink-0">
+              <ShieldAlert size={12} className="shrink-0" />
+              <span className="font-bold tracking-wide text-[9px] md:text-xs">{error}</span>
             </div>
           )}
 
-          {/* Mostrar el footer del boton SOLO si el bloque tiene preguntas que requieren input manual */}
-          {currentBlock.questions.some(q => q.type !== 'radio') && (
-            <div className="mt-4 md:mt-8 flex justify-between items-center bg-[#050505] p-3 md:p-6 border border-structure shrink-0 w-full">
-              <div className="text-gray-500 text-[10px] md:text-xs hidden sm:block uppercase tracking-widest">
-                {'< C-LEVEL CONFIDENTIALITY >'}
-              </div>
-              
-              <button 
-                id="wizard-next-btn"
-                onClick={handleNext}
-                disabled={isSubmitting}
-                className="flex items-center justify-center gap-2 md:gap-3 bg-signals text-background px-4 py-3 md:px-10 md:py-4 font-bold uppercase tracking-widest transition-all hover:bg-emerald-400 disabled:opacity-50 text-[11px] md:text-sm whitespace-nowrap w-full sm:w-auto shadow-[0_0_15px_rgba(0,255,136,0.2)]"
-              >
-                {isSubmitting ? 'ANALIZANDO...' : 'CONFIRMAR Y AVANZAR'}
-                {!isSubmitting && <ChevronRight size={16} />}
-              </button>
-            </div>
-          )}
-
-          {/* Boton oculto para compatibilidad con el flujo de radio-auto-advance final */}
-          {!currentBlock.questions.some(q => q.type !== 'radio') && (
+          <div className="mt-2 flex justify-between items-center bg-[#050505] px-3 py-1.5 border border-structure shrink-0 w-full">
+            <div className="text-gray-600 text-[8px] hidden sm:block uppercase tracking-widest">C-LEVEL CONFIDENTIALITY</div>
             <button
               id="wizard-next-btn"
               onClick={handleNext}
               disabled={isSubmitting}
-              className="hidden"
-              aria-hidden="true"
-            />
-          )}
+              className="flex items-center justify-center gap-1.5 bg-signals text-background px-5 py-2 font-bold uppercase tracking-widest transition-all hover:bg-emerald-400 disabled:opacity-50 text-xs whitespace-nowrap w-full sm:w-auto"
+            >
+              {isSubmitting ? 'ANALIZANDO...' : 'CONFIRMAR Y AVANZAR'}
+              {!isSubmitting && <ChevronRight size={12} />}
+            </button>
+          </div>
           
         </div>
       </div>

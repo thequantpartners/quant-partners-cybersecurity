@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 class TextScramble {
   constructor(el) {
@@ -16,7 +16,6 @@ class TextScramble {
     const length = Math.max(oldText.length, newText.length);
     const promise = new Promise((resolve) => (this.resolve = resolve));
     this.queue = [];
-    
     for (let i = 0; i < length; i++) {
       const from = oldText[i] || '';
       const to = newText[i] || '';
@@ -24,7 +23,6 @@ class TextScramble {
       const end = start + Math.floor(Math.random() * 40);
       this.queue.push({ from, to, start, end });
     }
-    
     cancelAnimationFrame(this.frameRequest);
     this.frame = 0;
     this.update();
@@ -34,7 +32,6 @@ class TextScramble {
   update() {
     let output = '';
     let complete = 0;
-    
     for (let i = 0, n = this.queue.length; i < n; i++) {
       let { from, to, start, end, char } = this.queue[i];
       if (this.frame >= end) {
@@ -50,7 +47,6 @@ class TextScramble {
         output += from;
       }
     }
-    
     this.el.innerHTML = output;
     if (complete === this.queue.length) {
       this.resolve();
@@ -79,9 +75,8 @@ const ScrambledTitle = () => {
         'VULNERABILIDADES CRÍTICAS',
         'FALLO ESTRUCTURAL DETECTADO',
         'DEPENDENCIA EXTERNA ACTIVA',
-        'TU SISTEMA ESTÁ EXPUESTO'
+        'TU SISTEMA ESTÁ EXPUESTO',
       ];
-      
       let counter = 0;
       const next = () => {
         if (scramblerRef.current) {
@@ -91,145 +86,62 @@ const ScrambledTitle = () => {
           counter = (counter + 1) % phrases.length;
         }
       };
-
       next();
     }
   }, [mounted]);
 
   return (
-    <span 
+    <span
       ref={elementRef}
-      className="text-signals text-glow uppercase block mt-1 whitespace-normal break-words text-xl sm:text-3xl md:text-5xl lg:text-6xl"
+      className="text-signals text-glow uppercase block whitespace-normal break-words text-2xl sm:text-3xl md:text-4xl lg:text-5xl"
       style={{ fontFamily: 'var(--font-mono)' }}
     >
       VULNERABILIDADES CRÍTICAS
     </span>
   );
-}
-
-const Hero = ({ onStartScan }) => {
-  const [characters, setCharacters] = useState([]);
-  const [activeIndices, setActiveIndices] = useState(new Set());
-
-  const createCharacters = useCallback(() => {
-    const allChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]{}|;:,.<>?";
-    const charCount = 300;
-    const newCharacters = [];
-
-    for (let i = 0; i < charCount; i++) {
-      newCharacters.push({
-        char: allChars[Math.floor(Math.random() * allChars.length)],
-        x: Math.random() * 100,
-        y: Math.random() * 100,
-        speed: 0.1 + Math.random() * 0.3,
-      });
-    }
-
-    return newCharacters;
-  }, []);
-
-  useEffect(() => {
-    setCharacters(createCharacters());
-  }, [createCharacters]);
-
-  useEffect(() => {
-    const updateActiveIndices = () => {
-      const newActiveIndices = new Set();
-      const numActive = Math.floor(Math.random() * 3) + 3;
-      for (let i = 0; i < numActive; i++) {
-        newActiveIndices.add(Math.floor(Math.random() * characters.length));
-      }
-      setActiveIndices(newActiveIndices);
-    };
-
-    const flickerInterval = setInterval(updateActiveIndices, 50);
-    return () => clearInterval(flickerInterval);
-  }, [characters.length]);
-
-  useEffect(() => {
-    let animationFrameId;
-
-    const updatePositions = () => {
-      setCharacters(prevChars => 
-        prevChars.map(char => ({
-          ...char,
-          y: char.y + char.speed,
-          ...(char.y >= 100 && {
-            y: -5,
-            x: Math.random() * 100,
-            char: "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]{}|;:,.<>?"[
-              Math.floor(Math.random() * "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]{}|;:,.<>?".length)
-            ],
-          }),
-        }))
-      );
-      animationFrameId = requestAnimationFrame(updatePositions);
-    };
-
-    animationFrameId = requestAnimationFrame(updatePositions);
-    return () => cancelAnimationFrame(animationFrameId);
-  }, []);
-
-  const executeDiagnostic = () => {
-    if (onStartScan) onStartScan();
-  };
-
-  return (
-    <section className="relative w-full h-[100dvh] bg-background overflow-hidden flex flex-col justify-center items-start">
-      
-      {/* Raining Characters Background */}
-      <div className="absolute inset-0 z-0 pointer-events-none">
-        {characters.map((char, index) => (
-          <span
-            key={index}
-            className={`absolute transition-colors duration-100 ${
-              activeIndices.has(index)
-                ? "text-signals z-10 font-bold animate-pulse text-xl md:text-3xl"
-                : "text-gray-800 font-light text-lg md:text-2xl"
-            }`}
-            style={{
-              left: `${char.x}%`,
-              top: `${char.y}%`,
-              transform: `translate(-50%, -50%) ${activeIndices.has(index) ? 'scale(1.25)' : 'scale(1)'}`,
-              textShadow: activeIndices.has(index) 
-                ? '0 0 8px rgba(0, 255, 136, 0.8), 0 0 12px rgba(0, 255, 136, 0.4)' 
-                : 'none',
-              opacity: activeIndices.has(index) ? 1 : 0.6,
-              willChange: 'transform, top',
-            }}
-          >
-            {char.char}
-          </span>
-        ))}
-      </div>
-
-      {/* Main Content */}
-      <div className="relative z-20 w-full max-w-7xl mx-auto px-5 md:px-6">
-        <h1 className="text-2xl md:text-5xl font-bold tracking-tight mb-3 md:mb-8 drop-shadow-lg leading-tight">
-          Tu sistema de adquisición tiene 
-          <ScrambledTitle />
-        </h1>
-        
-        <p className="text-sm md:text-2xl text-gray-300 max-w-2xl mb-4 md:mb-12 font-mono drop-shadow-md leading-relaxed">
-          <span className="hidden md:inline">Tu tecnología es de élite, pero tu arquitectura comercial es un colador de papel. Estás perdiendo contratos Enterprise hoy mismo porque operas tu adquisición como un vendedor aficionado, no como un operador logístico.</span>
-          <span className="md:hidden">Tu arquitectura comercial es un colador de papel. Estás perdiendo contratos Enterprise por operar como aficionado.</span>
-        </p>
-        
-        <div className="text-xs md:text-sm font-mono text-gray-400 mb-4 md:mb-8 border-l-2 border-signals pl-3 md:pl-4 uppercase tracking-widest backdrop-blur-sm bg-background/30 max-w-fit pr-3 md:pr-4 py-1 md:py-2">
-          <p>No es falta de leads.</p>
-          <p className="text-white mt-1">Es insolvencia técnica en la captación.</p>
-        </div>
-        
-        <button 
-          onClick={executeDiagnostic}
-          className="group relative px-5 md:px-8 py-3 md:py-4 bg-background/80 backdrop-blur-sm border border-signals text-signals font-mono font-bold uppercase tracking-widest text-xs md:text-base whitespace-nowrap hover:bg-signals hover:text-background transition-all duration-300"
-        >
-          [ Ejecutar diagnóstico ]
-          <span className="absolute inset-0 border border-signals scale-[1.05] opacity-0 group-hover:scale-100 group-hover:opacity-100 transition-all duration-300 pointer-events-none"></span>
-        </button>
-      </div>
-    </section>
-  );
 };
+
+const Hero = () => (
+  <section className="relative z-10 w-full shrink-0 pt-10 pb-3 md:pt-7 md:pb-4 text-center">
+    <div className="w-full max-w-3xl mx-auto px-4">
+
+      {/* Brand */}
+      <p className="font-mono text-sm md:text-base text-signals uppercase tracking-[0.3em] mb-1 md:mb-2">
+        QUANT PARTNERS
+      </p>
+
+      {/* Social proof line */}
+      <p className="font-mono text-xs md:text-sm text-gray-500 mb-3 md:mb-4 leading-relaxed">
+        Luego de auditar{' '}
+        <span className="text-white underline underline-offset-2">+120 firmas de ciberseguridad</span>{' '}
+        y cerrar contratos Enterprise por{' '}
+        <span className="text-white underline underline-offset-2">+$8M USD</span>...
+      </p>
+
+      {/* Big headline */}
+      <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-2 md:mb-3 leading-tight">
+        Tu sistema de adquisición tiene
+        <ScrambledTitle />
+      </h1>
+
+      {/* Subtitle */}
+      <p className="text-sm md:text-base text-gray-400 max-w-xl mx-auto mb-10 md:mb-4 font-mono leading-relaxed">
+        Sin pipeline predecible, sin targeting C-Level, sin arquitectura de cierre.{' '}
+        <span className="text-white">Instalamos tu sistema en 90 días</span>{' '}
+        — luego es 100% tuyo y lo controlas tú.
+      </p>
+
+      {/* PASO 1 — separado de titulares, pegado al video */}
+      <div className="flex flex-col items-center gap-1.5 -mb-1 md:mb-0">
+        <p className="font-mono text-sm md:text-xl font-bold text-gray-300 uppercase tracking-widest">
+          PASO 1:{' '}
+          <span className="text-white">MIRA EL VIDEO DE DIAGNÓSTICO</span>
+        </p>
+        <div className="h-0.5 w-40 md:w-64 bg-gradient-to-r from-transparent via-signals to-transparent" />
+      </div>
+
+    </div>
+  </section>
+);
 
 export default Hero;
